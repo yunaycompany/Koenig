@@ -21,9 +21,6 @@ ReactDOM.createRoot(document.getElementById('root')).render(
                 <Route element={<RestrictedContentDemo paragraphs={1} />} path="/contentrestricted" />
                 <Route element={<HtmlOutputDemo />} path="/html-output" />
                 <Route element={<DemoApp introContent={true} />} path="/" />
-                <Route element={<DemoApp editorType='basic' introContent={true} />} path="/basic" />
-                <Route element={<DemoApp editorType='minimal' introContent={true} />} path="/minimal" />
-                <Route element={<DemoApp introContent={true} isMultiplayer={true} />} path="/multiplayer" />
             </Routes>
         </Router>
     </React.StrictMode>
