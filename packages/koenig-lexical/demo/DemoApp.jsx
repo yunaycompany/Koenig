@@ -133,9 +133,15 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     useEffect(() => {
         const handleMessage = (event) => {
             console.log('Origin:', event.origin);
-            if (event.origin !== "http://localhost:8000") {
+            const allowedOrigins = [
+                "https://pepcore-dev.peptalk.com",
+                "https://pepcore.peptalk.com",
+                "http://localhost:8000"
+            ];
+            if (!allowedOrigins.includes(event.origin)) {
                 return;
             }
+
             console.log('Message received from parent:', event.data);
             if(!event.data)
                 return
