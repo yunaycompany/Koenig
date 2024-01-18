@@ -137,10 +137,50 @@ export function useFileUpload({isMultiplayer = false} = {}) {
             } else {
                 // for non-multiplayer editors, use blob urls as they are much shorter meaning they
                 // are nicer to work with in things like the markdown card and in the state tree
-                uploadResult = Array.from(files).map(file => ({
-                    url: URL.createObjectURL(file),
-                    fileName: file.name
-                }));
+                // uploadResult = Array.from(files).map(file => ({
+                //     url: URL.createObjectURL(file),
+                //     fileName: file.name
+                // }));
+                const parentUrl = document.referrer;
+                console.log('ParentUrl: '+ parentUrl)
+                const uploadBaseUrl = new URL(parentUrl).origin;
+                const uploadUrl = `${uploadBaseUrl}/api/editor/upload`;
+
+                //const headers = new Headers();
+                //const username = '';
+                //const password = '';
+                // headers.set('Authorization', 'Basic ' + btoa(username + ":" + password));
+
+                console.log('Upload URL: '+ uploadUrl)
+
+                for (const file of Array.from(files)) {
+                    const formData = new FormData();
+                    formData.append('file', file);
+
+                    try {
+
+                        const response = await fetch(uploadUrl, {
+                            // headers,
+                            method: 'POST',
+                            body: formData
+                        });
+
+                        if (!response.ok) {
+                            throw new Error(`Error: ${response.statusText}`);
+                        }
+
+                        const result = await response.json();
+
+                        uploadResult.push({
+                            url: result.url,
+                            fileName: file.name
+                        });
+                    } catch (error) {
+                        console.error('Upload error:', error);
+                        setErrors(prevErrors => [...prevErrors, { fileName: file.name, message: 'Upload failed' }]);
+                    }
+                }
+
             }
 
             setProgress(100);
