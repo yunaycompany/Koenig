@@ -136,7 +136,8 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             const allowedOrigins = [
                 "https://pepcore-dev.peptalk.com",
                 "https://pepcore.peptalk.com",
-                "http://localhost:8000"
+                "http://localhost:8000",
+                "http://pepcore.peptalk.localhost"
             ];
             if (!allowedOrigins.includes(event.origin)) {
                 return;
@@ -145,7 +146,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             console.log('Message received from parent:', event.data);
             if(!event.data)
                 return
-            setContentFromParent(event.data);
+            const lexical = JSON.parse(event.data.lexical)
+            const title = event.data.title
+            setContentFromParent(lexical);
+            setTitle(title);
         };
 
         window.addEventListener('message', handleMessage);
@@ -155,15 +159,17 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             window.removeEventListener('message', handleMessage);
         };
     }, []);
-    // Additional useEffect to handle changes in contentFromParent
-    useEffect(() => {
-        if (contentFromParent) {
-            // Handle the new content here
-            // For example, update the title
-            setTitle('New Content Received');
-            // Or do something else with the content
-        }
-    }, [contentFromParent]);
+    // // Additional useEffect to handle changes in contentFromParent
+    // useEffect(() => {
+    //     if (contentFromParent) {
+    //         // Handle the new content here
+    //         // For example, update the title
+    //         console.log('heeeee')
+    //         console.log(contentTitle)
+    //         setTitle(contentTitle);
+    //         // Or do something else with the content
+    //     }
+    // }, [contentFromParent]);
 
     const [title, setTitle] = useState(initialContent ? 'Meet the Koenig editor.' : '');
     const [editorAPI, setEditorAPI] = useState(null);
