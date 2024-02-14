@@ -243,8 +243,8 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             title: title,
             lexical: serializedState
         }
-        console.log('Message sent to parent:',  data)
-        sendMessageToParent('Saved', serializedState)
+        console.log('Message sent to parent:', data)
+        sendMessageToParent('Saved', data)
         // const encodedContent = encodeURIComponent(serializedState);
         // searchParams.set('content', encodedContent);
         // setSearchParams(searchParams);
