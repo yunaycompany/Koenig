@@ -159,17 +159,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             window.removeEventListener('message', handleMessage);
         };
     }, []);
-    // // Additional useEffect to handle changes in contentFromParent
-    // useEffect(() => {
-    //     if (contentFromParent) {
-    //         // Handle the new content here
-    //         // For example, update the title
-    //         console.log('heeeee')
-    //         console.log(contentTitle)
-    //         setTitle(contentTitle);
-    //         // Or do something else with the content
-    //     }
-    // }, [contentFromParent]);
 
     const [title, setTitle] = useState(initialContent ? 'Meet the Koenig editor.' : '');
     const [editorAPI, setEditorAPI] = useState(null);
@@ -250,8 +239,11 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     function saveContent() {
         console.log('Saving')
         const serializedState = editorAPI.serialize();
-        console.log(serializedState)
-
+        const data = {
+            title: title,
+            lexical: serializedState
+        }
+        console.log('Message sent to parent:',  data)
         sendMessageToParent('Saved', serializedState)
         // const encodedContent = encodeURIComponent(serializedState);
         // searchParams.set('content', encodedContent);
