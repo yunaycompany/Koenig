@@ -1,6 +1,7 @@
 import DarkModeToggle from './components/DarkModeToggle';
 import SaveContentButton from './components/SaveContentButton';
 import React, {useState, useEffect} from 'react';
+import {debounce} from 'lodash';
 import TitleTextBox from './components/TitleTextBox';
 import WordCount from './components/WordCount';
 import basicContent from './content/basic-content.json';
@@ -22,6 +23,7 @@ import {tenorConfig} from './utils/tenorConfig';
 import {useCollections} from './utils/useCollections';
 import {useLocation, useSearchParams} from 'react-router-dom';
 import {useSnippets} from './utils/useSnippets';
+import saveContentButton from "./components/SaveContentButton";
 
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
@@ -146,8 +148,8 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             console.log('Message received from parent:', event.data);
             if(!event.data)
                 return
-            const lexical = JSON.parse(event.data.lexical)
-            const title = event.data.title
+            const lexical = JSON.parse(event.data.lexical);
+            const title = event.data.title;
             setContentFromParent(lexical);
             setTitle(title);
         };
@@ -164,10 +166,29 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const [editorAPI, setEditorAPI] = useState(null);
     const titleRef = React.useRef(null);
     const containerRef = React.useRef(null);
+    const [isTyping, setIsTyping] = useState(false);
 
+    function updateWordCount(wordCount){
 
+        setWordCount(wordCount);
+        if (wordCount > 1) {
+            saveContent();
+        }
+    }
 
+    const handleIsTyping = debounce(function () {
+        // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
+        setIsTyping(false);
+    }, 1000);
 
+    function updateTitle(title){
+        setIsTyping(true);
+        handleIsTyping();
+        setTitle(title);
+        if (!isTyping) {
+            saveContent();
+        }
+    }
 
     function focusTitle() {
         titleRef.current?.focus();
@@ -237,7 +258,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     }
 
     function saveContent() {
-        console.log('Saving')
+        console.log('Saving');
         const serializedState = editorAPI.serialize();
         const data = {
             title: title,
@@ -253,8 +274,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const message = { eventName, data};
         window.parent.postMessage(message, "*");
     }
-
-
     React.useEffect(() => {
         const handleFileDrag = (event) => {
             event.preventDefault();
@@ -292,13 +311,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             nodes={getAllowedNodes({editorType})}
         >
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
-
-                <SaveContentButton onSaveContent={saveContent} />
-                <DarkModeToggle darkMode={darkMode} toggleDarkMode={toggleDarkMode} />
                 <div ref={containerRef} className="h-full overflow-auto overflow-x-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
-                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={setTitle} title={title} />
+                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
                         }
                         <DemoEditor
@@ -307,7 +323,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                             editorType={editorType}
                             registerAPI={setEditorAPI}
                             setTKCount={setTKCount}
-                            setWordCount={setWordCount}
+                            setWordCount={updateWordCount}
                         />
                     </div>
                 </div>
@@ -321,7 +337,6 @@ const MemoizedDemoComposer = React.memo(DemoComposer);
 function DemoApp({editorType, isMultiplayer}) {
     const [wordCount, setWordCount] = useState(0);
     const [tkCount, setTKCount] = useState(0);
-
     // used to force a re-initialization of the editor when URL changes, otherwise
     // content is memoized and causes issues when switching between editor types
     const location = useLocation();
