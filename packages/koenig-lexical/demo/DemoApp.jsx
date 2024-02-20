@@ -168,7 +168,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const containerRef = React.useRef(null);
     const [isTyping, setIsTyping] = useState(false);
 
-    function updateWordCount(wordCount){
+    useEffect(() => {
+        if (!isTyping && editorAPI) {
+            saveContent();
+        }
+    }, [isTyping]);
+
+    function updateWordCount(wordCount) {
 
         setWordCount(wordCount);
         if (wordCount > 1) {
@@ -181,13 +187,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         setIsTyping(false);
     }, 500);
 
-    function updateTitle(title){
+    function updateTitle(title) {
         setIsTyping(true);
         handleIsTyping();
         setTitle(title);
-        if (!isTyping && title !== '') {
-            saveContent();
-        }
     }
 
     function focusTitle() {
