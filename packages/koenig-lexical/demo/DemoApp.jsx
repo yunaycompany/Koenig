@@ -179,13 +179,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const handleIsTyping = debounce(function () {
         // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
         setIsTyping(false);
-    }, 1000);
+    }, 500);
 
     function updateTitle(title){
         setIsTyping(true);
         handleIsTyping();
         setTitle(title);
-        if (!isTyping) {
+        if (!isTyping && title !== '') {
             saveContent();
         }
     }
