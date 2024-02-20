@@ -351,8 +351,6 @@ function DemoApp({editorType, isMultiplayer}) {
             className={`koenig-lexical top`}
         >
             {/* outside of DemoComposer to avoid re-renders and flaky tests when word count changes */}
-            <WordCount tkCount={tkCount} wordCount={wordCount} />
-
             <MemoizedDemoComposer
                 editorType={editorType}
                 isMultiplayer={isMultiplayer}
