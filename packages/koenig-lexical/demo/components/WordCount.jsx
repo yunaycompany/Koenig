@@ -5,7 +5,7 @@ const WordCount = ({wordCount, tkCount}) => {
             {tkCount > 0 && (
                 <>
                     {' '}
-                    / <span data-testid="tk-count">{tkCount}</span> TK{tkCount > 1 && 's'}
+                    / <span data-testid="tk-count" id="word-count">{tkCount}</span> TK{tkCount > 1 && 's'}
                 </>
             )}
         </div>
