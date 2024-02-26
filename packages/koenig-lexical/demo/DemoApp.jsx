@@ -1,9 +1,6 @@
-import DarkModeToggle from './components/DarkModeToggle';
-import SaveContentButton from './components/SaveContentButton';
 import React, {useState, useEffect} from 'react';
 import {debounce} from 'lodash';
 import TitleTextBox from './components/TitleTextBox';
-import WordCount from './components/WordCount';
 import basicContent from './content/basic-content.json';
 import content from './content/content.json';
 import minimalContent from './content/minimal-content.json';
@@ -23,7 +20,6 @@ import {tenorConfig} from './utils/tenorConfig';
 import {useCollections} from './utils/useCollections';
 import {useLocation, useSearchParams} from 'react-router-dom';
 import {useSnippets} from './utils/useSnippets';
-import saveContentButton from "./components/SaveContentButton";
 
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
@@ -113,6 +109,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const [sidebarView, setSidebarView] = useState('json');
     const {snippets, createSnippet, deleteSnippet} = useSnippets();
     const {collections, fetchCollectionPosts} = useCollections();
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     const skipFocusEditor = React.useRef(false);
 
@@ -166,33 +163,47 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const [editorAPI, setEditorAPI] = useState(null);
     const titleRef = React.useRef(null);
     const containerRef = React.useRef(null);
-    const [isTyping, setIsTyping] = useState(false);
+    const [editorContent, setEditorContent] = useState(initialContent);
 
     useEffect(() => {
-        if (!isTyping && editorAPI) {
-            console.log('Sending saving from use Effect isTyping');
-            saveContent();
+        if (editorAPI) {
+            const checkContentChange = () => {
+                const currentContent = editorAPI.serialize(); // Assuming `serialize` returns the current content
+
+                // Check if it's the initial load
+                if (isInitialLoad) {
+                    setEditorContent(currentContent);
+                    setIsInitialLoad(false);
+                } else if (currentContent !== editorContent) {
+                    setEditorContent(currentContent);
+                    // Only autosave if it's not the initial load
+                    console.log('Content changed, autosaving...');
+                    saveContent()
+                }
+            };
+
+            // Poll for content changes every 500 milliseconds
+            const intervalId = setInterval(checkContentChange, 500);
+
+            return () => clearInterval(intervalId);
         }
-    }, [isTyping]);
+    }, [editorAPI, editorContent, isInitialLoad]);
 
-    function updateWordCount(wordCount) {
-        setWordCount(wordCount);
-        if (wordCount > 1) {
-            console.log('Sending saving from use updateWordCount');
-            saveContent();
-        }
-    }
 
-    const handleIsTyping = debounce(function () {
-        // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
-        setIsTyping(false);
-    }, 500);
+    // useEffect(() => {
+    //     const debouncedSave = debounce(() => {
+    //         console.log('Autosaving content');
+    //         saveContent()
+    //     }, 500);
+    //
+    //     debouncedSave();
+    //
+    //
+    //     return () => {
+    //         debouncedSave.cancel();
+    //     };
+    // }, [editorContent]);
 
-    function updateTitle(title) {
-        setIsTyping(true);
-        handleIsTyping();
-        setTitle(title);
-    }
 
     function focusTitle() {
         titleRef.current?.focus();
@@ -319,7 +330,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                 <div ref={containerRef} className="h-full  overflow-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
-                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
+                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={setTitle} title={title} />
                             : null
                         }
                         <DemoEditor
@@ -328,7 +339,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                             editorType={editorType}
                             registerAPI={setEditorAPI}
                             setTKCount={setTKCount}
-                            setWordCount={updateWordCount}
+                            setWordCount={setWordCount}
                         />
                     </div>
                 </div>
