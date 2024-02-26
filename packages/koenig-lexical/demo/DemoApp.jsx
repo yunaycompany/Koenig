@@ -178,12 +178,12 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                     setEditorContent(currentContent);
                     // Only autosave if it's not the initial load
                     console.log('Content changed, autosaving...');
-                    saveContent()
+                    saveContent();
                 }
             };
 
             // Poll for content changes every 500 milliseconds
-            const intervalId = setInterval(checkContentChange, 500);
+            const intervalId = setInterval(checkContentChange, 3000);
 
             return () => clearInterval(intervalId);
         }
@@ -279,9 +279,9 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const data = {
             title: title,
             lexical: serializedState
-        }
-        console.log('Message sent to parent:', data)
-        sendMessageToParent('Saved', data)
+        };
+        console.log('Message sent to parent:', data);
+        sendMessageToParent('Saved', data);
         // const encodedContent = encodeURIComponent(serializedState);
         // searchParams.set('content', encodedContent);
         // setSearchParams(searchParams);
