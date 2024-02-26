@@ -170,14 +170,15 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
 
     useEffect(() => {
         if (!isTyping && editorAPI) {
+            console.log('Sending saving from use Effect isTyping');
             saveContent();
         }
     }, [isTyping]);
 
     function updateWordCount(wordCount) {
-
         setWordCount(wordCount);
         if (wordCount > 1) {
+            console.log('Sending saving from use updateWordCount');
             saveContent();
         }
     }
@@ -315,7 +316,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             nodes={getAllowedNodes({editorType})}
         >
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
-                <div ref={containerRef} className="h-full overflow-x-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
+                <div ref={containerRef} className="h-full  overflow-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
