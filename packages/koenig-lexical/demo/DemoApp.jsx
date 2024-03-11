@@ -164,7 +164,12 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const titleRef = React.useRef(null);
     const containerRef = React.useRef(null);
     const [editorContent, setEditorContent] = useState(initialContent);
-
+    const [isTyping, setIsTyping] = useState(false);
+    useEffect(() => {
+        if (!isTyping && editorAPI) {
+            saveContent();
+        }
+    }, [isTyping]);
     useEffect(() => {
         if (editorAPI) {
             const checkContentChange = () => {
@@ -189,7 +194,16 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         }
     }, [editorAPI, editorContent, isInitialLoad]);
 
+    const handleIsTyping = debounce(function () {
+        // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
+        setIsTyping(false);
+    }, 500);
 
+    function updateTitle(title) {
+        setIsTyping(true);
+        handleIsTyping();
+        setTitle(title);
+    }
     // useEffect(() => {
     //     const debouncedSave = debounce(() => {
     //         console.log('Autosaving content');
@@ -206,7 +220,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
 
 
     function focusTitle() {
-        titleRef.current?.focus();
+       // titleRef.current?.focus();
     }
 
     // mousedown can select a node which can deselect another node meaning the
@@ -223,6 +237,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     }
 
     function focusEditor(event) {
+        skipFocusEditor.current = true;
         return;
         const clickedOnDecorator = (event.target.closest('[data-lexical-decorator]') !== null) || event.target.hasAttribute('data-lexical-decorator');
         const clickedOnSlashMenu = (event.target.closest('[data-kg-slash-menu]') !== null) || event.target.hasAttribute('data-kg-slash-menu');
@@ -254,7 +269,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                 }
 
                 // Focus the editor
-                editorAPI.focusEditor({position: 'bottom'});
+               // editorAPI.focusEditor({position: 'bottom'});
 
                 //scroll to the bottom of the container
                 containerRef.current.scrollTop = containerRef.current.scrollHeight;
@@ -330,7 +345,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                 <div ref={containerRef} className="h-full  overflow-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
-                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={setTitle} title={title} />
+                            ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
                         }
                         <DemoEditor
