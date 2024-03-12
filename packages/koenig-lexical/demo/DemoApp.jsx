@@ -204,80 +204,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         handleIsTyping();
         setTitle(title);
     }
-    // useEffect(() => {
-    //     const debouncedSave = debounce(() => {
-    //         console.log('Autosaving content');
-    //         saveContent()
-    //     }, 500);
-    //
-    //     debouncedSave();
-    //
-    //
-    //     return () => {
-    //         debouncedSave.cancel();
-    //     };
-    // }, [editorContent]);
-
-
-    function focusTitle() {
-       // titleRef.current?.focus();
-    }
-
-    // mousedown can select a node which can deselect another node meaning the
-    // mouseup/click event can occur outside of the initially clicked node, in
-    // which case we don't want to then "re-focus" the editor and cause unexpected
-    // selection changes
-    function maybeSkipFocusEditor(event) {
-        const clickedOnDecorator = (event.target.closest('[data-lexical-decorator]') !== null) || event.target.hasAttribute('data-lexical-decorator');
-        const clickedOnSlashMenu = (event.target.closest('[data-kg-slash-menu]') !== null) || event.target.hasAttribute('data-kg-slash-menu');
-
-        if (clickedOnDecorator || clickedOnSlashMenu) {
-            skipFocusEditor.current = true;
-        }
-    }
-
-    function focusEditor(event) {
-        skipFocusEditor.current = true;
-        return;
-        const clickedOnDecorator = (event.target.closest('[data-lexical-decorator]') !== null) || event.target.hasAttribute('data-lexical-decorator');
-        const clickedOnSlashMenu = (event.target.closest('[data-kg-slash-menu]') !== null) || event.target.hasAttribute('data-kg-slash-menu');
-
-        if (!skipFocusEditor.current && editorAPI && !clickedOnDecorator && !clickedOnSlashMenu) {
-            let editor = editorAPI.editorInstance;
-
-            // if a mousedown and subsequent mouseup occurs below the editor
-            // canvas, focus the editor and put the cursor at the end of the document
-            let {bottom} = editor._rootElement.getBoundingClientRect();
-            if (event.pageY > bottom && event.clientY > bottom) {
-                event.preventDefault();
-
-                // we should always have a visible cursor when focusing
-                // at the bottom so create an empty paragraph if last
-                // section is a card
-                let addLastParagraph = false;
-
-                editor.getEditorState().read(() => {
-                    const lastNode = $getRoot().getChildren().at(-1);
-
-                    if ($isDecoratorNode(lastNode)) {
-                        addLastParagraph = true;
-                    }
-                });
-
-                if (addLastParagraph) {
-                    editorAPI.insertParagraphAtBottom();
-                }
-
-                // Focus the editor
-               // editorAPI.focusEditor({position: 'bottom'});
-
-                //scroll to the bottom of the container
-                containerRef.current.scrollTop = containerRef.current.scrollHeight;
-            }
-        }
-
-        skipFocusEditor.current = false;
-    }
+    
 
     function toggleDarkMode() {
         if (darkMode) {
@@ -297,9 +224,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         };
         console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
-        // const encodedContent = encodeURIComponent(serializedState);
-        // searchParams.set('content', encodedContent);
-        // setSearchParams(searchParams);
     }
     function sendMessageToParent(eventName, data) {
         const message = { eventName, data};
@@ -342,14 +266,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             nodes={getAllowedNodes({editorType})}
         >
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
-                <div ref={containerRef} className="h-full  overflow-hidden" onClick={focusEditor} onMouseDown={maybeSkipFocusEditor}>
+                <div ref={containerRef} className="h-full  overflow-hidden">
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
                         }
                         <DemoEditor
-                            cursorDidExitAtTop={focusTitle}
                             darkMode={darkMode}
                             editorType={editorType}
                             registerAPI={setEditorAPI}
