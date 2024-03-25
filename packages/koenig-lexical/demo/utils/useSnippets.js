@@ -30,7 +30,7 @@ function getSnippetsFromStorage() {
                     {
                         "type": "html",
                         "version": 1,
-                        "html": " <video style=\"width:100%\" class=\"w3-margin-bottom\" controls>\n   <source src=\"https://content.peptalk.ie/Academy/Library/EOIN+SHEEHAN/2023+Updated+Branding/Energy_Balls_Updated_Branding.mp4\" type=\"video/mp4\">\n   <source src=\"https://content.peptalk.ie/Academy/Library/EOIN+SHEEHAN/2023+Updated+Branding/Energy_Balls_Updated_Branding.mp4\" type=\"video/ogg\">\n   Your browser does not support HTML video.\n  </video>"
+                        "html": " <video style=\"width:100%\" class=\"w3-margin-bottom\" controls=\"\" oncontextmenu=\"return false;\">\n   <source src=\"https://content.peptalk.ie/Academy/Library/EOIN+SHEEHAN/2023+Updated+Branding/Energy_Balls_Updated_Branding.mp4\" type=\"video/mp4\">\n   <source src=\"https://content.peptalk.ie/Academy/Library/EOIN+SHEEHAN/2023+Updated+Branding/Energy_Balls_Updated_Branding.mp4\" type=\"video/ogg\">\n   Your browser does not support HTML video.\n  </video>"
                     }
                 ]
             },
