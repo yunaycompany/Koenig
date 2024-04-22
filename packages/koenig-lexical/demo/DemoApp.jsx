@@ -167,7 +167,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const [isTyping, setIsTyping] = useState(false);
     useEffect(() => {
         if (!isTyping && editorAPI) {
-            saveContent();
+            //saveContent();
         }
     }, [isTyping]);
     useEffect(() => {
@@ -204,15 +204,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         handleIsTyping();
         setTitle(title);
     }
-    
 
-    function toggleDarkMode() {
-        if (darkMode) {
-            searchParams.delete('darkMode');
-        } else {
-            searchParams.set('darkMode', 'true');
-        }
-        setSearchParams(searchParams);
+    function focusEditor(event) {
+        console.log('focusEditor');
+        saveContent();
     }
 
     function saveContent() {
@@ -266,7 +261,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             nodes={getAllowedNodes({editorType})}
         >
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
-                <div ref={containerRef} className="h-full  overflow-hidden">
+                <div ref={containerRef} className="h-full  overflow-hidden" onClick={focusEditor}>
                     <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
