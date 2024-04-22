@@ -206,13 +206,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     }
 
     function saveContent() {
-        console.log('Saving');
+       // console.log('Saving');
         const serializedState = editorAPI.serialize();
         const data = {
             title: title,
             lexical: serializedState
         };
-        console.log('Message sent to parent:', data);
+        //console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
     }
     function sendMessageToParent(eventName, data) {
