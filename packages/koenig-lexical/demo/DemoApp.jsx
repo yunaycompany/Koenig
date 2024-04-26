@@ -141,10 +141,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             if (!allowedOrigins.includes(event.origin)) {
                 return;
             }
-
-            console.log('Message received from parent:', event.data);
-            if(!event.data)
-                return
             const lexical = JSON.parse(event.data.lexical);
             const title = event.data.title;
             setContentFromParent(lexical);
