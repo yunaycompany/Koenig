@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import {debounce} from 'lodash';
 import TitleTextBox from './components/TitleTextBox';
+import FeaturedImage from './components/FeaturedImage';
 import basicContent from './content/basic-content.json';
 import content from './content/content.json';
 import minimalContent from './content/minimal-content.json';
@@ -20,7 +21,7 @@ import {tenorConfig} from './utils/tenorConfig';
 import {useCollections} from './utils/useCollections';
 import {useLocation, useSearchParams} from 'react-router-dom';
 import {useSnippets} from './utils/useSnippets';
-
+import ImgPlaceholderIcon from '../src/assets/icons/kg-img-placeholder.svg?react';
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const WEBSOCKET_ENDPOINT = params.get('multiplayerEndpoint') || 'ws://localhost:1234';
@@ -110,6 +111,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const {snippets, createSnippet, deleteSnippet} = useSnippets();
     const {collections, fetchCollectionPosts} = useCollections();
     const [isInitialLoad, setIsInitialLoad] = useState(true);
+    const [previewImage, setPreviewImage] = useState(null);
 
     const skipFocusEditor = React.useRef(false);
 
@@ -143,8 +145,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             }
             const lexical = JSON.parse(event.data.lexical);
             const title = event.data.title;
+            const previewIma = event.data.previewImage;
             setContentFromParent(lexical);
             setTitle(title);
+            setPreviewImage(previewIma)
         };
 
         window.addEventListener('message', handleMessage);
@@ -206,6 +210,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const serializedState = editorAPI.serialize();
         const data = {
             title: title,
+            previewImage: previewImage,
             lexical: serializedState
         };
         //console.log('Message sent to parent:', data);
@@ -215,6 +220,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const message = { eventName, data};
         window.parent.postMessage(message, "*");
     }
+
     React.useEffect(() => {
         const handleFileDrag = (event) => {
             event.preventDefault();
@@ -253,7 +259,8 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         >
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
                 <div ref={containerRef} className="h-full overflow-x-hidden">
-                    <div className="mx-auto max-w-[740px] px-6 py-[15vmin] lg:px-0">
+                    <div className="mx-auto max-w-[740px] px-6 py-[5vmin] lg:px-0">
+                        <FeaturedImage desc="Click to select a feature image" Icon={ImgPlaceholderIcon}  alt="Upload" previewImage={previewImage}  setPreviewImage={setPreviewImage}/>
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null

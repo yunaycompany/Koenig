@@ -32,7 +32,13 @@ body,
         background-color: var(--black);
     }
 }
-
+.featured-image-input{
+    z-index: 1000;height: 200px;width: 200px;
+    display: none;
+}
+.featured-image-container{
+    padding-bottom: 100px;
+}
 .koenig-lexical.top {
     display: flex;
 }
