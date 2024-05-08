@@ -205,6 +205,11 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         setTitle(title);
     }
 
+    function updatePreviewImage(image) {
+        setPreviewImage(image);
+        saveContent();
+    }
+
     function saveContent() {
        // console.log('Saving');
         const serializedState = editorAPI.serialize();
@@ -260,7 +265,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
                 <div ref={containerRef} className="h-full overflow-x-hidden">
                     <div className="mx-auto max-w-[740px] px-6 py-[5vmin] lg:px-0">
-                        <FeaturedImage desc="Click to select a feature image" Icon={ImgPlaceholderIcon}  alt="Upload" previewImage={previewImage}  setPreviewImage={setPreviewImage}/>
+                        <FeaturedImage desc="Click to select a feature image" Icon={ImgPlaceholderIcon} alt="Upload" previewImage={previewImage} setPreviewImage={updatePreviewImage}/>
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
