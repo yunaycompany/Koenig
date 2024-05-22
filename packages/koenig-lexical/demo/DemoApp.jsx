@@ -144,10 +144,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             }
             const lexical = JSON.parse(event.data.lexical);
             const title = event.data.title;
-            const previewIma = event.data.previewImage;
+            const previewIma = event.data.feature_image;
             setContentFromParent(lexical);
             setTitle(title);
-            //setPreviewImage(previewIma)
+            setPreviewImage(previewIma);
         };
 
         window.addEventListener('message', handleMessage);
