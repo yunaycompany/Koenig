@@ -218,11 +218,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     function saveContent() {
         const serializedState = editorAPI.serialize();
         const data = {
-            title: title,
+            title: title === '' ? '(Untitled)' : title,
             previewImage: previewImage,
             lexical: serializedState
         };
-        //console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
     }
     function sendMessageToParent(eventName, data) {
