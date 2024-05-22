@@ -111,7 +111,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const {snippets, createSnippet, deleteSnippet} = useSnippets();
     const {collections, fetchCollectionPosts} = useCollections();
     const [isInitialLoad, setIsInitialLoad] = useState(true);
-    const [previewImage, setPreviewImage] = useState(null);
 
     const skipFocusEditor = React.useRef(false);
 
@@ -148,7 +147,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             const previewIma = event.data.previewImage;
             setContentFromParent(lexical);
             setTitle(title);
-            setPreviewImage(previewIma)
+            //setPreviewImage(previewIma)
         };
 
         window.addEventListener('message', handleMessage);
@@ -158,7 +157,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             window.removeEventListener('message', handleMessage);
         };
     }, []);
-
+    const [previewImage, setPreviewImage] = useState('');
     const [title, setTitle] = useState(initialContent ? 'Meet the Koenig editor.' : '');
     const [editorAPI, setEditorAPI] = useState(null);
     const titleRef = React.useRef(null);
@@ -170,6 +169,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             saveContent();
         }
     }, [isTyping]);
+
+    useEffect(() => {
+        if (editorAPI) {
+            saveContent();
+        }
+    }, [previewImage]);
+
     useEffect(() => {
         if (editorAPI) {
             const checkContentChange = () => {
@@ -207,11 +213,9 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
 
     function updatePreviewImage(image) {
         setPreviewImage(image);
-        saveContent();
     }
 
     function saveContent() {
-       // console.log('Saving');
         const serializedState = editorAPI.serialize();
         const data = {
             title: title,

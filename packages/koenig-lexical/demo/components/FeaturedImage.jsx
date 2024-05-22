@@ -1,10 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import DeleteIcon from '../../src/assets/icons/kg-trash.svg?react';
 import { useFileUpload } from '../utils/useFileUpload';
-import {IconButton} from "../../src/components/ui/IconButton.jsx";
 
 function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
-    const { progress, isLoading, upload, errors, filesNumber } = useFileUpload()('image');
+    const { isLoading, upload } = useFileUpload()('image');
 
     const [previewImageLocal, setPreviewImageLocal] = useState(null);
 
@@ -13,7 +11,6 @@ function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
             setPreviewImageLocal(previewImage);
         }
     }, [previewImage]);
-
 
     // Handle file selection and upload
     const handleFileChange = async (event) => {
@@ -27,7 +24,7 @@ function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
             };
             reader.readAsDataURL(file);
         }
-       const uploadResult= await upload(files);
+       const uploadResult = await upload(files);
         if(uploadResult && uploadResult.length >0 && uploadResult[0].url){
             setPreviewImage(uploadResult[0].url);
         }
@@ -59,7 +56,7 @@ function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
                         </svg>
                     </a>
                     <figure className="rounded-xl">
-                        <img src={previewImageLocal} alt="Preview"className="object-cover rounded-xl max-w-[670px] max-h-[400px]" accept="image/png, image/jpeg,image/jpg" />
+                        <img src={previewImageLocal} alt="Preview" className="object-cover rounded-xl max-w-[670px] max-h-[400px]" accept="image/png, image/jpeg,image/jpg" />
                     </figure>
                 </div>
             )}
