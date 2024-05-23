@@ -3,14 +3,7 @@ import { useFileUpload } from '../utils/useFileUpload';
 
 function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
     const { isLoading, upload } = useFileUpload()('image');
-
     const [previewImageLocal, setPreviewImageLocal] = useState(null);
-
-    useEffect(() => {
-        if(previewImage){
-            setPreviewImageLocal(previewImage);
-        }
-    }, [previewImage]);
 
     // Handle file selection and upload
     const handleFileChange = async (event) => {
@@ -24,9 +17,11 @@ function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
             };
             reader.readAsDataURL(file);
         }
-       const uploadResult = await upload(files);
-        if(uploadResult && uploadResult.length >0 && uploadResult[0].url){
-            setPreviewImage(uploadResult[0].url);
+        const uploadResult = await upload(files);
+        console.log(uploadResult)
+        if(uploadResult && uploadResult.length > 0 && uploadResult[0].url && uploadResult[0].path){
+            setPreviewImageLocal(uploadResult[0].url);
+            setPreviewImage(uploadResult[0].path);
         }
 
     };

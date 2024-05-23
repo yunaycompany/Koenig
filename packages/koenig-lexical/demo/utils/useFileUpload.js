@@ -173,6 +173,7 @@ export function useFileUpload({isMultiplayer = false} = {}) {
 
                         uploadResult.push({
                             url: result.url,
+                            path: result.path,
                             fileName: file.name
                         });
                     } catch (error) {
