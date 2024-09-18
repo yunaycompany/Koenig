@@ -7,7 +7,7 @@ import content from './content/content.json';
 import minimalContent from './content/minimal-content.json';
 import {$getRoot, $isDecoratorNode} from 'lexical';
 import {
-    BASIC_NODES, BASIC_TRANSFORMERS, KoenigComposableEditor,
+    BASIC_NODES, BASIC_TRANSFORMERS, HtmlOutputPlugin, KoenigComposableEditor,
     KoenigComposer, KoenigEditor, MINIMAL_NODES, MINIMAL_TRANSFORMERS,
     // MobiledocCopyPlugin,
     RestrictContentPlugin,
@@ -66,7 +66,7 @@ function getAllowedNodes({editorType}) {
     return undefined;
 }
 
-function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, setTKCount}) {
+function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, html, setHtml, setTKCount}) {
     if (editorType === 'basic') {
         return (
             <KoenigComposableEditor
@@ -98,6 +98,7 @@ function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setW
             registerAPI={registerAPI}
         >
             {/*<MobiledocCopyPlugin />*/}
+            <HtmlOutputPlugin html={html} setHtml={setHtml}/>
             <WordCountPlugin onChange={setWordCount} />
             <TKCountPlugin onChange={setTKCount} />
         </KoenigEditor>
@@ -112,6 +113,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const {collections, fetchCollectionPosts} = useCollections();
     const [isInitialLoad, setIsInitialLoad] = useState(true);
     const [previewImage, setPreviewImage] = useState(null);
+    const [html, setHtml] = useState('');
 
     const skipFocusEditor = React.useRef(false);
 
@@ -206,12 +208,12 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     }
 
     function saveContent() {
-       // console.log('Saving');
         const serializedState = editorAPI.serialize();
         const data = {
             title: title,
             previewImage: previewImage,
-            lexical: serializedState
+            lexical: serializedState,
+            html
         };
         //console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
@@ -270,6 +272,8 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                             editorType={editorType}
                             registerAPI={setEditorAPI}
                             setTKCount={setTKCount}
+                            setHtml={setHtml}
+                            html={html}
 
                         />
                     </div>
