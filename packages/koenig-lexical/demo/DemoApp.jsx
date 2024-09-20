@@ -225,7 +225,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             lexical: serializedState,
             html
         };
-        console.log('Message sent to parent:', data);
+        // console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
     }
     function sendMessageToParent(eventName, data) {
