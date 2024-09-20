@@ -44,14 +44,14 @@ export function cardTemplate({node, cardClasses}) {
                     preload="metadata"
                     style="background: transparent url('${thumbnailSrc}') 50% 50% / cover no-repeat;"
                 ></video>
-                <div class="kg-video-overlay">
+                <div class="kg-video-overlay" style="display: none">
                     <button class="kg-video-large-play-icon" aria-label="Play video">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
                             <path d="M23.14 10.608 2.253.164A1.559 1.559 0 0 0 0 1.557v20.887a1.558 1.558 0 0 0 2.253 1.392L23.14 13.393a1.557 1.557 0 0 0 0-2.785Z"/>
                         </svg>
                     </button>
                 </div>
-                <div class="kg-video-player-container${hideControlsClass}">
+                <div class="kg-video-player-container${hideControlsClass}" style="display: none">
                     <div class="kg-video-player">
                         <button class="kg-video-play-icon" aria-label="Play video">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
