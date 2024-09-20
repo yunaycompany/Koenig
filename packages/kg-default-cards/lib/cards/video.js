@@ -26,7 +26,7 @@ module.exports = {
             <figure class="{{cardClasses}}">
                 <div class="kg-video-container">
                     <video controls="" src="{{payload.src}}"
-                           poster="{{posterSpacerSrc}}"
+                    <!--[if vml]> poster="{{posterSpacerSrc}}"<![endif]-->
                            width="{{payload.width}}"
                            height="{{payload.height}}"{{#if payload.loop}} loop autoplay muted{{/if}} playsinline preload="metadata" style="background: transparent url('{{thumbnailSrc}}') 50% 50% / cover no-repeat;" /></video>
                     <div class="kg-video-overlay" style="display: none">

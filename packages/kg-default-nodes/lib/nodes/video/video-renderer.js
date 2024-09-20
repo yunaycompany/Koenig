@@ -37,7 +37,7 @@ export function cardTemplate({node, cardClasses}) {
                 <video
                     controls=""
                     src="${node.src}"
-                    poster="${posterSpacerSrc}"
+                     <!--[if vml]>poster="${posterSpacerSrc}" <![endif]-->
                     width="${width}"
                     height="${height}"
                     ${autoplayAttr}
