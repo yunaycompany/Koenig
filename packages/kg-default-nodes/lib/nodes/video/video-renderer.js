@@ -35,6 +35,7 @@ export function cardTemplate({node, cardClasses}) {
         <figure class="${cardClasses}" data-kg-thumbnail=${node.thumbnailSrc} data-kg-custom-thumbnail=${node.customThumbnailSrc}>
             <div class="kg-video-container">
                 <video
+                    controls=""
                     src="${node.src}"
                     poster="${posterSpacerSrc}"
                     width="${width}"
@@ -42,9 +43,8 @@ export function cardTemplate({node, cardClasses}) {
                     ${autoplayAttr}
                     playsinline
                     preload="metadata"
-                    style="background: transparent url('${thumbnailSrc}') 50% 50% / cover no-repeat;">
-                     <source src="${node.src}" type="video/mp4"></source>
-</video>
+                    style="background: transparent url('${thumbnailSrc}') 50% 50% / cover no-repeat;"
+                ></video>
                 <div class="kg-video-overlay" style="display: none">
                     <button class="kg-video-large-play-icon" aria-label="Play video">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
