@@ -143,7 +143,7 @@ export function useFileUpload({isMultiplayer = false} = {}) {
                 // }));
                 const parentUrl = document.referrer;
                 console.log('ParentUrl: '+ parentUrl)
-                const uploadBaseUrl = new URL(parentUrl).origin;
+                const uploadBaseUrl = 'https://pepcore-dev.peptalk.com'//new URL(parentUrl).origin;
                 const uploadUrl = `${uploadBaseUrl}/api/editor/upload`;
 
                 //const headers = new Headers();
@@ -178,7 +178,7 @@ export function useFileUpload({isMultiplayer = false} = {}) {
                         });
                     } catch (error) {
                         console.error('Upload error:', error);
-                        setErrors(prevErrors => [...prevErrors, { fileName: file.name, message: 'Upload failed' }]);
+                        setErrors(prevErrors => [...prevErrors, { fileName: file.name, message: 'The uploaded file exceeds the maximum allowed size. Please upload a file smaller than [80 MB].' }]);
                     }
                 }
 
@@ -187,7 +187,7 @@ export function useFileUpload({isMultiplayer = false} = {}) {
             setProgress(100);
             setLoading(false);
 
-            setErrors([]); // components expect array of objects: { fileName: string, message: string }[]
+            //setErrors([]); // components expect array of objects: { fileName: string, message: string }[]
 
             return uploadResult;
         }
