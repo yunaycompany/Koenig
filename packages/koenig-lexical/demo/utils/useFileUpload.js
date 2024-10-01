@@ -143,7 +143,7 @@ export function useFileUpload({isMultiplayer = false} = {}) {
                 // }));
                 const parentUrl = document.referrer;
                 console.log('ParentUrl: '+ parentUrl)
-                const uploadBaseUrl = 'https://pepcore-dev.peptalk.com'//new URL(parentUrl).origin;
+                const uploadBaseUrl = new URL(parentUrl).origin;
                 const uploadUrl = `${uploadBaseUrl}/api/editor/upload`;
 
                 //const headers = new Headers();
