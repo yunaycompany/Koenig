@@ -145,10 +145,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             }
             const lexical = JSON.parse(event.data.lexical);
             const title = event.data.title;
-            const previewIma = event.data.feature_image;
+            // const previewIma = event.data.feature_image;
             setContentFromParent(lexical);
             setTitle(title);
-            setPreviewImage(previewIma);
+            // setPreviewImage(previewIma);
         };
 
         window.addEventListener('message', handleMessage);
@@ -246,7 +246,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const plainText = getPlainTextFromKoenig(serializedState);
         const data = {
             title: title === '' ? '(Untitled)' : title,
-            previewImage: previewImage,
+            // previewImage: previewImage,
             lexical: serializedState,
             html,
             plainText
@@ -298,7 +298,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
                 <div ref={containerRef} className="h-full overflow-x-hidden">
                     <div className="mx-auto max-w-[740px] px-6 py-[5vmin] lg:px-0">
-                        <FeaturedImage alt="Upload" desc="Click to select a feature image" Icon={ImgPlaceholderIcon} previewImage={previewImage} setPreviewImage={updatePreviewImage}/>
+                        {/*<FeaturedImage alt="Upload" desc="Click to select a feature image" Icon={ImgPlaceholderIcon} previewImage={previewImage} setPreviewImage={updatePreviewImage}/>*/}
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
