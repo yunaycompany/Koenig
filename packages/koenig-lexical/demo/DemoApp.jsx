@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from 'react';
-import {debounce} from 'lodash';
-import TitleTextBox from './components/TitleTextBox';
 import FeaturedImage from './components/FeaturedImage';
+import ImgPlaceholderIcon from '../src/assets/icons/kg-img-placeholder.svg?react';
+import React, {useEffect, useState} from 'react';
+import TitleTextBox from './components/TitleTextBox';
 import basicContent from './content/basic-content.json';
 import content from './content/content.json';
 import minimalContent from './content/minimal-content.json';
@@ -14,6 +14,7 @@ import {
     TKCountPlugin,
     WordCountPlugin
 } from '../src';
+import {debounce} from 'lodash';
 import {defaultHeaders as defaultUnsplashHeaders} from './utils/unsplashConfig';
 import {fetchEmbed} from './utils/fetchEmbed';
 import {fileTypes, useFileUpload} from './utils/useFileUpload';
@@ -21,7 +22,6 @@ import {tenorConfig} from './utils/tenorConfig';
 import {useCollections} from './utils/useCollections';
 import {useLocation, useSearchParams} from 'react-router-dom';
 import {useSnippets} from './utils/useSnippets';
-import ImgPlaceholderIcon from '../src/assets/icons/kg-img-placeholder.svg?react';
 const url = new URL(window.location.href);
 const params = new URLSearchParams(url.search);
 const WEBSOCKET_ENDPOINT = params.get('multiplayerEndpoint') || 'ws://localhost:1234';
@@ -119,7 +119,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const darkMode = searchParams.get('darkMode') === 'true';
     const [contentFromParent, setContentFromParent] = useState(null);
 
-
     const defaultContent = React.useMemo(() => {
         return JSON.stringify(getDefaultContent({editorType}));
     }, [editorType]);
@@ -136,10 +135,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         const handleMessage = (event) => {
             console.log('Origin:', event.origin);
             const allowedOrigins = [
-                "https://pepcore-dev.peptalk.com",
-                "https://pepcore.peptalk.com",
-                "http://localhost:8000",
-                "http://pepcore.peptalk.localhost"
+                'https://pepcore-dev.peptalk.com',
+                'https://pepcore.peptalk.com',
+                'http://localhost:8000',
+                'http://pepcore.peptalk.localhost'
             ];
             if (!allowedOrigins.includes(event.origin)) {
                 return;
@@ -216,21 +215,48 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     function updatePreviewImage(image) {
         setPreviewImage(image);
     }
+    function getPlainTextFromKoenig(serializedState) {
+        let plainText = '';
 
+        function parseNodes(nodes) {
+            nodes.forEach((node) => {
+                if (node.type === 'paragraph') {
+                    // Process children inside paragraph and add a line break after
+                    if (node.children && node.children.length > 0) {
+                        node.children.forEach((child) => {
+                            if (child.type === 'extended-text' && child.text) {
+                                plainText += child.text + ' ';
+                            }
+                        });
+                        plainText = plainText.trim() + '\n'; // Add a line break after each paragraph
+                    }
+                } else if (node.children && node.children.length > 0) {
+                    // Recursively parse non-paragraph nodes with children
+                    parseNodes(node.children);
+                }
+            });
+        }
+
+        const decodedSerializedState = JSON.parse(serializedState);
+        parseNodes(decodedSerializedState.root.children);
+        return plainText.trim(); // Final trim to clean up any extra spaces or line breaks
+    }
     function saveContent() {
         const serializedState = editorAPI.serialize();
+        const plainText = getPlainTextFromKoenig(serializedState);
         const data = {
             title: title === '' ? '(Untitled)' : title,
             previewImage: previewImage,
             lexical: serializedState,
-            html
+            html,
+            plainText
         };
         // console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
     }
     function sendMessageToParent(eventName, data) {
-        const message = { eventName, data};
-        window.parent.postMessage(message, "*");
+        const message = {eventName, data};
+        window.parent.postMessage(message, '*');
     }
 
     React.useEffect(() => {
@@ -272,7 +298,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
                 <div ref={containerRef} className="h-full overflow-x-hidden">
                     <div className="mx-auto max-w-[740px] px-6 py-[5vmin] lg:px-0">
-                        <FeaturedImage desc="Click to select a feature image" Icon={ImgPlaceholderIcon} alt="Upload" previewImage={previewImage} setPreviewImage={updatePreviewImage}/>
+                        <FeaturedImage alt="Upload" desc="Click to select a feature image" Icon={ImgPlaceholderIcon} previewImage={previewImage} setPreviewImage={updatePreviewImage}/>
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
@@ -280,10 +306,10 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                         <DemoEditor
                             darkMode={darkMode}
                             editorType={editorType}
-                            registerAPI={setEditorAPI}
-                            setTKCount={setTKCount}
-                            setHtml={setHtml}
                             html={html}
+                            registerAPI={setEditorAPI}
+                            setHtml={setHtml}
+                            setTKCount={setTKCount}
 
                         />
                     </div>
