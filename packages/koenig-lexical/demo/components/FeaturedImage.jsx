@@ -31,7 +31,7 @@ function FeaturedImaged({ desc, Icon, previewImage, setPreviewImage }) {
         setPreviewImage(null);
     };
     return (
-        <div className="my-2">
+        <div className="my-2" id="ghostPreviewContainer">
             {previewImageLocal && (
                 <div className="flex flex-row items-center mt-6 relative">
                     <a href="#" onClick={handleRemoveImage} className="absolute top-1 end-1 rounded-md bg-gray-200 p-1 text-gray-900 shadow-sm hover:bg-gray-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-gray-600">
