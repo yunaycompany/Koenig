@@ -244,6 +244,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     function saveContent() {
         const serializedState = editorAPI.serialize();
         const plainText = getPlainTextFromKoenig(serializedState);
+        console.log(html);
         const data = {
             title: title === '' ? '(Untitled)' : title,
             previewImage: previewImage,
