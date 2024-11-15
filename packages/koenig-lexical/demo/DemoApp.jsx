@@ -1,4 +1,5 @@
 import FeaturedImage from './components/FeaturedImage';
+import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import ImgPlaceholderIcon from '../src/assets/icons/kg-img-placeholder.svg?react';
 import React, {useEffect, useState} from 'react';
 import TitleTextBox from './components/TitleTextBox';
@@ -66,7 +67,7 @@ function getAllowedNodes({editorType}) {
     return undefined;
 }
 
-function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, html, setHtml, setTKCount}) {
+function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, html, setHtml, setTKCount, onChange}) {
     if (editorType === 'basic') {
         return (
             <KoenigComposableEditor
@@ -96,6 +97,7 @@ function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setW
             cursorDidExitAtTop={cursorDidExitAtTop}
             darkMode={darkMode}
             registerAPI={registerAPI}
+            onChange={onChange}
         >
             {/*<MobiledocCopyPlugin />*/}
             <HtmlOutputPlugin html={html} setHtml={setHtml}/>
@@ -133,16 +135,19 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
 
     useEffect(() => {
         const handleMessage = (event) => {
-            console.log('Origin:', event.origin);
             const allowedOrigins = [
                 'https://pepcore-dev.peptalk.com',
                 'https://pepcore.peptalk.com',
+                'https://app.peptalk.com',
+                'http://app.localhost.test',
                 'http://localhost:8000',
                 'http://pepcore.peptalk.localhost'
             ];
             if (!allowedOrigins.includes(event.origin)) {
                 return;
             }
+
+            console.log('Origin:', event.origin);
             const lexical = JSON.parse(event.data.lexical);
             const title = event.data.title;
             const previewIma = event.data.feature_image;
@@ -165,52 +170,39 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
     const containerRef = React.useRef(null);
     const [editorContent, setEditorContent] = useState(initialContent);
     const [isTyping, setIsTyping] = useState(false);
-    useEffect(() => {
-        if (!isTyping && editorAPI) {
-            saveContent();
-        }
-    }, [isTyping]);
+
+    const debouncedSaveContent = debounce(() => {
+        saveContent();
+    }, 800); // 800ms debounce
+
 
     useEffect(() => {
-        if (editorAPI) {
-            saveContent();
+        if (editorAPI && editorAPI.editorInstance) {
+            const editorInstance = editorAPI.editorInstance;
+            if (editorInstance.registerUpdateListener) {
+                const unsub = editorInstance.registerUpdateListener((editorState) => {
+                    const currentContent = editorAPI.serialize();
+                    if (currentContent !== editorContent) {
+                        setEditorContent(currentContent);
+                        saveContent(currentContent);
+                    }
+                });
+                return () => unsub(); // Cleanup on unmount
+            } else {
+                console.error("registerUpdateListener is not available on editorInstance");
+            }
         }
-    }, [previewImage]);
+    }, [editorAPI, editorContent]);
 
-    useEffect(() => {
-        if (editorAPI) {
-            const checkContentChange = () => {
-                const currentContent = editorAPI.serialize(); // Assuming `serialize` returns the current content
-
-                // Check if it's the initial load
-                if (isInitialLoad) {
-                    setEditorContent(currentContent);
-                    setIsInitialLoad(false);
-                } else if (currentContent !== editorContent) {
-                    setEditorContent(currentContent);
-                    // Only autosave if it's not the initial load
-                    console.log('Content changed, autosaving...');
-                    saveContent();
-                }
-            };
-
-            // Poll for content changes every 500 milliseconds
-            const intervalId = setInterval(checkContentChange, 3000);
-
-            return () => clearInterval(intervalId);
-        }
-    }, [editorAPI, editorContent, isInitialLoad]);
-
-    const handleIsTyping = debounce(function () {
-        // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
-        setIsTyping(false);
-    }, 800);
 
     function updateTitle(title) {
-        setIsTyping(true);
-        handleIsTyping();
         setTitle(title);
+        debouncedSaveContent()
     }
+
+    const handleContentChange = (editorState) => {
+        debouncedSaveContent();
+    };
 
     function updatePreviewImage(image) {
         setPreviewImage(image);
@@ -242,9 +234,9 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         return plainText.trim(); // Final trim to clean up any extra spaces or line breaks
     }
     function saveContent() {
+        if(!editorAPI) return;
         const serializedState = editorAPI.serialize();
         const plainText = getPlainTextFromKoenig(serializedState);
-        console.log(html);
         const data = {
             title: title === '' ? '(Untitled)' : title,
             previewImage: previewImage,
@@ -252,7 +244,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             html,
             plainText
         };
-        // console.log('Message sent to parent:', data);
+        console.log('Message sent to parent:', data);
         sendMessageToParent('Saved', data);
     }
     function sendMessageToParent(eventName, data) {
@@ -311,6 +303,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                             registerAPI={setEditorAPI}
                             setHtml={setHtml}
                             setTKCount={setTKCount}
+                            onChange={handleContentChange}
 
                         />
                     </div>
