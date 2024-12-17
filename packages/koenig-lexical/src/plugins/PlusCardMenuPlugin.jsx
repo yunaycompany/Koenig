@@ -238,7 +238,8 @@ function usePlusCardMenu(editor) {
     }, [cardConfig, editor, setCardMenu]);
 
     const style = {
-        top: `${topPosition}px`
+        top: `${topPosition}px`,
+        left: `8%`
     };
 
     if (cardMenu.menu?.size === 0) {
