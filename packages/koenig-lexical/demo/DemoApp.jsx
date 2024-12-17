@@ -1,5 +1,4 @@
 import FeaturedImage from './components/FeaturedImage';
-import {LexicalComposer} from '@lexical/react/LexicalComposer';
 import ImgPlaceholderIcon from '../src/assets/icons/kg-img-placeholder.svg?react';
 import React, {useEffect, useState} from 'react';
 import TitleTextBox from './components/TitleTextBox';
@@ -67,7 +66,7 @@ function getAllowedNodes({editorType}) {
     return undefined;
 }
 
-function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, html, setHtml, setTKCount, onChange}) {
+function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setWordCount, html, setHtml, setTKCount, handleContentChange}) {
     if (editorType === 'basic') {
         return (
             <KoenigComposableEditor
@@ -97,7 +96,7 @@ function DemoEditor({editorType, registerAPI, cursorDidExitAtTop, darkMode, setW
             cursorDidExitAtTop={cursorDidExitAtTop}
             darkMode={darkMode}
             registerAPI={registerAPI}
-            onChange={onChange}
+            onChange={handleContentChange}
         >
             {/*<MobiledocCopyPlugin />*/}
             <HtmlOutputPlugin html={html} setHtml={setHtml}/>
@@ -135,6 +134,7 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
 
     useEffect(() => {
         const handleMessage = (event) => {
+            console.log('Origin:', event.origin);
             const allowedOrigins = [
                 'https://pepcore-dev.peptalk.com',
                 'https://pepcore.peptalk.com',
@@ -146,14 +146,17 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             if (!allowedOrigins.includes(event.origin)) {
                 return;
             }
-
-            console.log('Origin:', event.origin);
-            const lexical = JSON.parse(event.data.lexical);
-            const title = event.data.title;
-            const previewIma = event.data.feature_image;
-            setContentFromParent(lexical);
-            setTitle(title);
-            setPreviewImage(previewIma);
+            if (event.origin === 'https://app.peptalk.com' || event.origin === 'http://app.localhost.test'){
+                setShowPreviewImage(false);
+            }
+            if (event.data && event.data.lexical){
+                const lexical = JSON.parse(event.data.lexical);
+                const title = event.data.title;
+                const previewIma = event.data.feature_image;
+                setContentFromParent(lexical);
+                setTitle(title);
+                setPreviewImage(previewIma);
+            }
         };
 
         window.addEventListener('message', handleMessage);
@@ -164,45 +167,52 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         };
     }, []);
     const [previewImage, setPreviewImage] = useState('');
+    const [showPreviewImage, setShowPreviewImage] = useState(false);
     const [title, setTitle] = useState(initialContent ? 'Meet the Koenig editor.' : '');
     const [editorAPI, setEditorAPI] = useState(null);
     const titleRef = React.useRef(null);
     const containerRef = React.useRef(null);
     const [editorContent, setEditorContent] = useState(initialContent);
     const [isTyping, setIsTyping] = useState(false);
-
-    const debouncedSaveContent = debounce(() => {
-        saveContent();
-    }, 800); // 800ms debounce
-
+    useEffect(() => {
+        if (!isTyping && editorAPI) {
+            saveContent();
+        }
+    }, [isTyping]);
 
     useEffect(() => {
-        if (editorAPI && editorAPI.editorInstance) {
-            const editorInstance = editorAPI.editorInstance;
-            if (editorInstance.registerUpdateListener) {
-                const unsub = editorInstance.registerUpdateListener((editorState) => {
-                    const currentContent = editorAPI.serialize();
-                    if (currentContent !== editorContent) {
-                        setEditorContent(currentContent);
-                        saveContent(currentContent);
-                    }
-                });
-                return () => unsub(); // Cleanup on unmount
-            } else {
-                console.error("registerUpdateListener is not available on editorInstance");
-            }
+        if (editorAPI) {
+            saveContent();
         }
-    }, [editorAPI, editorContent]);
+    }, [previewImage]);
 
+    // useEffect(() => {
+    //     if (editorAPI) {
+    //         const unsub = editorAPI.registerUpdateListener((editorState) => {
+    //             const currentContent = editorState.read();
+    //             if (currentContent !== editorContent) {
+    //                 setEditorContent(currentContent);
+    //                 saveContent(currentContent);
+    //             }
+    //         });
+    //         return () => unsub(); // Cleanup on unmount
+    //     }
+    // }, [editorAPI, editorContent]);
 
-    function updateTitle(title) {
-        setTitle(title);
-        debouncedSaveContent()
-    }
-
+    // const handleIsTyping = debounce(function () {
+    //     // continually delays setting "isTyping" to false for 500ms until the user has stopped typing and the delay runs out
+    //     setIsTyping(false);
+    // }, 800);
+    const debouncedSaveContent = debounce(() => {
+        saveContent();
+    }, 800);
     const handleContentChange = (editorState) => {
         debouncedSaveContent();
     };
+    function updateTitle(title) {
+        setTitle(title);
+        debouncedSaveContent();
+    }
 
     function updatePreviewImage(image) {
         setPreviewImage(image);
@@ -234,12 +244,13 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
         return plainText.trim(); // Final trim to clean up any extra spaces or line breaks
     }
     function saveContent() {
-        if(!editorAPI) return;
+        if (!editorAPI) {
+            return;
+        }
         const serializedState = editorAPI.serialize();
         const plainText = getPlainTextFromKoenig(serializedState);
         const data = {
             title: title === '' ? '(Untitled)' : title,
-            previewImage: previewImage,
             lexical: serializedState,
             html,
             plainText
@@ -291,7 +302,6 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
             <div className={`koenig-demo relative h-full grow ${darkMode ? 'dark' : ''}`} style={{'--kg-breakout-adjustment': isSidebarOpen ? '440px' : '0px'}}>
                 <div ref={containerRef} className="h-full overflow-x-hidden">
                     <div className="mx-auto max-w-[740px] px-6 py-[5vmin] lg:px-0">
-                        <FeaturedImage alt="Upload" desc="Click to select a feature image" Icon={ImgPlaceholderIcon} previewImage={previewImage} setPreviewImage={updatePreviewImage}/>
                         {showTitle
                             ? <TitleTextBox ref={titleRef} editorAPI={editorAPI} setTitle={updateTitle} title={title} />
                             : null
@@ -299,11 +309,11 @@ function DemoComposer({editorType, isMultiplayer, setWordCount, setTKCount}) {
                         <DemoEditor
                             darkMode={darkMode}
                             editorType={editorType}
+                            handleContentChange={handleContentChange}
                             html={html}
                             registerAPI={setEditorAPI}
                             setHtml={setHtml}
                             setTKCount={setTKCount}
-                            onChange={handleContentChange}
 
                         />
                     </div>
