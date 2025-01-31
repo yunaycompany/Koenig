@@ -36,11 +36,12 @@ function EmptyFileCard({handleSelectorClick, fileDragHandler}) {
     );
 }
 
-function PopulatedFileCard({isEditing, title, titlePlaceholder, desc, descPlaceholder, name, size, handleFileTitle, handleFileDesc, ...args}) {
+function PopulatedFileCard({isEditing, title, src, titlePlaceholder, desc, descPlaceholder, name, size, handleFileTitle, handleFileDesc, ...args}) {
     return (
         <div>
             <div className="flex justify-between rounded border border-grey/30 p-2">
-                <div className={`flex w-full flex-col px-2 font-sans ${((title || desc) || isEditing) ? 'justify-between' : 'justify-center'}`} {...args}>
+                <div
+                    className={`flex w-full flex-col px-2 font-sans ${((title || desc) || isEditing) ? 'justify-between' : 'justify-center'}`} {...args}>
                     {(isEditing || title || desc) && <div className="flex flex-col">
                         {
                             (isEditing || title) && (
@@ -54,7 +55,7 @@ function PopulatedFileCard({isEditing, title, titlePlaceholder, desc, descPlaceh
                                 />
                             )
                         }
-                        { (isEditing || desc) && (
+                        {(isEditing || desc) && (
                             <TextInput
                                 className="h-[26px] bg-transparent pb-1 text-[1.6rem] font-normal leading-none text-grey-700 placeholder:text-grey-500 dark:text-grey-300 dark:placeholder:text-grey-800"
                                 data-kg-file-card="fileDescription"
@@ -65,13 +66,17 @@ function PopulatedFileCard({isEditing, title, titlePlaceholder, desc, descPlaceh
                             />
                         )}
                     </div>}
-                    <div className="!mt-0 py-1 text-sm font-medium text-grey-900 dark:text-grey-200" data-kg-file-card="dataset">
+                    <div className="!mt-0 py-1 text-sm font-medium text-grey-900 dark:text-grey-200"
+                         data-kg-file-card="dataset">
                         {name}
                         <span className="text-grey-700"> • {size}</span>
                     </div>
+
                 </div>
-                <div className={`!mt-0 flex w-full max-w-[96px] items-center justify-center rounded bg-grey-200 dark:bg-grey-900 ${((title && desc) || isEditing) ? 'h-[96px]' : (title || desc) ? 'h-[64px]' : 'h-[40px]'}`}>
-                    <FileUploadIcon className={`text-green transition-all duration-75 ease-in ${((title || desc) || isEditing) ? 'h-6 w-6' : 'h-5 w-5'}`} />
+                <div
+                    className={`!mt-0 flex w-full max-w-[96px] items-center justify-center rounded bg-grey-200 dark:bg-grey-900 ${((title && desc) || isEditing) ? 'h-[96px]' : (title || desc) ? 'h-[64px]' : 'h-[40px]'}`}>
+                    <FileUploadIcon
+                        className={`text-green transition-all duration-75 ease-in ${((title || desc) || isEditing) ? 'h-6 w-6' : 'h-5 w-5'}`}/>
                 </div>
             </div>
             {!isEditing && <div className="absolute inset-0 z-50">
@@ -79,10 +84,32 @@ function PopulatedFileCard({isEditing, title, titlePlaceholder, desc, descPlaceh
         </div>
     );
 }
+function PopulateIframe({ src, ...args }) {
+    return (
+        <div className="flex justify-between rounded border border-grey/30 p-2">
+            <div
+                className={`flex w-full flex-col px-2 font-sans justify-center'}`} {...args}>
+
+            <div style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+            <iframe
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                allowFullScreen={true}
+                frameBorder="0"
+                src={src}
+                style={{ width: '100%', flex: 1, maxWidth: '100%' }}
+                title="BOM at the Historic Rally Festival 2021"
+            />
+        </div>
+        </div>
+        </div>
+    );
+}
+
 
 export function FileCard(
     {isPopulated,
         fileTitle,
+        fileSrc,
         fileTitlePlaceholder,
         fileDesc,
         fileDescPlaceholder,
@@ -115,6 +142,11 @@ export function FileCard(
         );
     }
     if (isPopulated) {
+        if (fileSrc.includes('.pdf')) {
+            return <PopulateIframe
+                src={fileSrc}
+                {...args} />;
+        }
         return (
             <PopulatedFileCard
                 desc={fileDesc}
@@ -124,6 +156,7 @@ export function FileCard(
                 isEditing={isEditing}
                 name={fileName}
                 size={fileSize}
+                src={fileSrc}
                 title={fileTitle}
                 titlePlaceholder={fileTitlePlaceholder}
                 {...args}
@@ -149,6 +182,7 @@ export function FileCard(
 FileCard.propTypes = {
     isPopulated: PropTypes.bool,
     fileTitle: PropTypes.string,
+    fileSrc: PropTypes.string,
     fileTitlePlaceholder: PropTypes.string,
     fileDesc: PropTypes.string,
     fileDescPlaceholder: PropTypes.string,
@@ -181,5 +215,6 @@ PopulatedFileCard.propTypes = {
     name: PropTypes.string,
     size: PropTypes.string,
     title: PropTypes.string,
+    src: PropTypes.string,
     titlePlaceholder: PropTypes.string
 };

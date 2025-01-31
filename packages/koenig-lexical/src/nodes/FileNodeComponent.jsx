@@ -137,6 +137,7 @@ function FileNodeComponent({
                 fileInputRef={fileInputRef}
                 fileName={fileName}
                 fileSize={fileSize}
+                fileSrc={fileSrc}
                 fileTitle={fileTitle}
                 fileTitlePlaceholder={fileTitlePlaceholder}
                 fileUploader={uploader}
